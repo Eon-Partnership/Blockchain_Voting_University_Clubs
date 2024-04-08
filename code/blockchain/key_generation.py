@@ -38,10 +38,10 @@ class Keys():
             private_key_file_name = 'private_key_' + generate_random_string(16)
 
             # Writing keys to file
-            with open("./" + public_key_file_name, 'w') as file:
+            with open("./../resources/keys/" + public_key_file_name, 'w') as file:
                 file.write(str_public_key)
 
-            with open("./" + private_key_file_name, 'w') as file:
+            with open("./../resources/keys/" + private_key_file_name, 'w') as file:
                 file.write(str_private_key)
             
             print(f'Public key written to: {public_key_file_name}')

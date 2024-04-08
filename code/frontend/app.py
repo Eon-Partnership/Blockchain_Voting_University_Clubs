@@ -2,6 +2,11 @@ from flask import Flask, render_template, request
 import json
 import websockets
 import asyncio
+from blind_signature_protocol import BlindSignatureProtocol
+from helper import read_data_from_file 
+
+#Number of candidates
+NUM_CANDIDATES = 4
 
 app = Flask(__name__)
 
@@ -28,8 +33,8 @@ def vote_submitted():
     data = request.json
     token = data.get('token')
     candidate = data.get('candidate')    
-    candidateId = data.get('candidateId')
-    print(token, candidate, candidateId)
+    candidate_id = data.get('candidateId')
+    print(token, candidate, candidate_id)
 
     config = read_config("./../resources/config.json")
     ip_addresses = config['ip_addresses']
@@ -40,8 +45,16 @@ def vote_submitted():
         uri = "ws://" + ip_addresses[i] + ":" + ports[i]
         websocket_uris.append(uri)
 
-    # Blind-signature protocol
-    # A whole bunch of stuff here, but after we broadcast the 'transaction'
+    # Perform Blind-signature protocol
+    blindSignatureProtocol = BlindSignatureProtocol()
+    point, lamba = blindSignatureProtocol.ballot_conformation_algorithm(candidate_id, NUM_CANDIDATES)
+
+    # read the keys
+    blindSignatureProtocol.read_keys_of_CA_and_BN()
+
+    # encrypt 
+
+
 
     asyncio.run(broadcast_vote_to_miners("Hi All!", websocket_uris))
     return f"Success!"
