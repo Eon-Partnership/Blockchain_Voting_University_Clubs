@@ -35,7 +35,7 @@ class BlockHeader():
         
         # Converting values to hex
         version_hex = hex(self.version)[2:]
-        merkle_root_hex = hex(self.merkle_root)[2:]
+        merkle_root_hex = self.merkle_root
         timestamp_hex = hex(self.timestamp)[2:]
         bits_hex = hex(self.bits)[2:]
         nonce_hex = hex(self.nonce)[2:]
@@ -78,6 +78,9 @@ class Block():
         self.transaction_limit = 16
         self.transactions = []
     
+    def __str__(self):
+        return f"{self.transactions=}"
+    
     # Mines for a valid block that can be added to the blockchain
     # aka it computes block header hash values until a valid one is found
     def mine_block(self):
@@ -102,9 +105,13 @@ class Block():
         for transaction in self.transactions:
             transaction_hashes.append(transaction.compute_hash())
         
-        merkle_tree = MerkleTree(transaction_hashes)
-        merkle_tree_root = merkle_tree.root.hex()
-        self.block_header.set_merkle_root(merkle_tree_root)
+        # Setting the merkle root
+        if len(transaction_hashes) != 1:
+            merkle_tree = MerkleTree(transaction_hashes)
+            merkle_tree_root = merkle_tree.root.hex()
+            self.block_header.set_merkle_root(merkle_tree_root)
+        else:
+            self.block_header.set_merkle_root(transaction_hashes[0])
 
         print("Mining has begun...")
         

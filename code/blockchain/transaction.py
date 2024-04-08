@@ -63,11 +63,19 @@ class KeyTransaction(Transaction):
         # Initializing the transaction hash
         self.transaction_hash = self.compute_hash()
     
+    def __str__(self):
+        return f"{self.central_authority_key=}\n{self.blockchain_network_key=}"
+    
      # Computes the hash for a VoteTransaction
     def compute_hash(self):
+        # Converting the transaction components into a hexadecimal representation
+        ca_key = str(self.central_authority_key.encode('utf-8').hex())
+        bn_key = str(self.blockchain_network_key.encode('utf-8').hex())
+        timestamp = str(int(self.timestamp, 16))
+
         # Concatenating the transaction components to compute a hash
         # ballot_point || ballot_slope || ballot_signature || timestamp
-        string_to_hash = self.central_authority_key + self.blockchain_network_key + self.timestamp
+        string_to_hash = ca_key + bn_key + timestamp
         hex_string_to_hash = string_to_hash.encode('utf-8').hex()
 
         # Applying the double sha-256 hash
@@ -82,10 +90,10 @@ if __name__ == '__main__':
 
     # # Testing a KeyTransaction
     # timestamp = int(datetime.now().timestamp())
-    # ca_key = Keys.read_raw_key_from_file('./public_key_ca')
-    # ca_key = str(ca_key.encode('utf-8').hex())
-    # bn_key = Keys.read_raw_key_from_file('./public_key_bn')
-    # bn_key = str(bn_key.encode('utf-8').hex())
+    # ca_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_CA')
+    # # ca_key = str(ca_key.encode('utf-8').hex())
+    # bn_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_BN')
+    # # bn_key = str(bn_key.encode('utf-8').hex())
     # key_transaction = KeyTransaction(ca_key, bn_key, timestamp)
     # print(key_transaction.transaction_hash)
 
