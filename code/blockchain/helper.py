@@ -1,5 +1,6 @@
 import random
 import string
+from hashlib import sha256
 
 # Generates a random string
 def generate_random_string(length):
@@ -20,3 +21,11 @@ def generate_random_binary_string(length):
     binary_string = ''.join(binary_digits)
     
     return binary_string
+
+# Computes a sha256 hash on a string of hexadeimal digits
+def compute_sha256_hash(hex_string):
+    input_bytes_string = bytes.fromhex(hex_string)
+    hash_object = sha256(input_bytes_string)
+    hex_digest = hash_object.hexdigest()
+
+    return hex_digest
