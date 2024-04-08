@@ -3,9 +3,18 @@ import json
 import websockets
 import asyncio
 from blind_signature_protocol import BlindSignatureProtocol
-from helper import read_data_from_file 
+import os
+import sys
+from importlib import import_module
+from datetime import datetime
 
-#Number of candidates
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
+from transaction import VoteTransaction
+
+# transaction = import_module('transaction')
+
+# Number of candidates
 NUM_CANDIDATES = 4
 
 app = Flask(__name__)
@@ -47,16 +56,22 @@ def vote_submitted():
 
     # Perform Blind-signature protocol
     blindSignatureProtocol = BlindSignatureProtocol()
-    point, lamba = blindSignatureProtocol.ballot_conformation_algorithm(candidate_id, NUM_CANDIDATES)
+    t1, t2, t3 = blindSignatureProtocol.perform_alogirthm(token, candidate_id, NUM_CANDIDATES)
 
-    # read the keys
-    blindSignatureProtocol.read_keys_of_CA_and_BN()
+    timestamp = int(datetime.now().timestamp())
+    # vote_transaction = VoteTransaction(str(t1), str(t2), str(t3), timestamp)
 
-    # encrypt 
+    vote_transaction = {
+        "message_type": "vote_transaction",
+        "t1": t1,
+        "t2": t2,
+        "t3": t3,
+        "timestamp": timestamp
+    }
 
-
-
-    asyncio.run(broadcast_vote_to_miners("Hi All!", websocket_uris))
+    vote_transaction_string = json.dumps(vote_transaction)
+    
+    asyncio.run(broadcast_vote_to_miners(vote_transaction_string, websocket_uris))
     return f"Success!"
 
 

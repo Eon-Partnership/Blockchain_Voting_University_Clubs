@@ -1,13 +1,15 @@
 import random
 import math
-from helper import generate_random_binary_string
-from helper import read_data_from_file 
+import os
+import sys
+from importlib import import_module
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
+from keys import Keys
+from helper import compute_sha256_hash, encrypt_rsa, decrypt_rsa, generate_signature, generate_random_binary_string
 
 class BlindSignatureProtocol():
     def __init__(self) -> None:
-        self.t1 = None
-        self.t2 = None
-        self.t3 = None
         self.pr_key_ca = None
         self.pb_key_ca = None
         self.pr_key_bn = None
@@ -17,13 +19,45 @@ class BlindSignatureProtocol():
         self.modulus = 3233
         self.exponent = 17
     
+    def perform_alogirthm(self, token, candidate_id, num_candidates):
+        point, lambda_num = self.ballot_conformation_algorithm(candidate_id, num_candidates)
+
+        # read the keys
+        self.read_keys_of_CA_and_BN()
+        # encrypt 
+        t1 = encrypt_rsa(hex(point[0]) + hex(point[1]) + compute_sha256_hash(hex(lambda_num)[2:]), self.pb_key_bn)
+
+        print("MYRON", t1)
+        blind_message = self.blind(compute_sha256_hash(bytes.hex(t1)))
+
+        print(blind_message)
+        # SEND MESSAGE TO 3rd CA
+        # message = encrypt_rsa(token, self.pb_key_ca) + blind_message
+        # print(message)
+
+        # --------------------------------
+        # decrypt the token and verify it
+
+        # get the blind message and produce a signature from it
+        signature = generate_signature(bytes(blind_message), self.pr_key_ca)
+        # --------------------------------
+
+        # get the t2 value 
+        t2 = self.unblind(signature)
+        t3 = encrypt_rsa(str(lambda_num), self.pb_key_ca)
+
+        print(f"t1: {t1};\n t2: {t2};\n t3: {t3}")
+
+        return str(bytes.hex(t1)), str(hex(t2)), str(bytes.hex(t3))
+
     # Algorithm for masking and randomzing a voter's vote to make a brute force attack harder
     def ballot_conformation_algorithm(self, candidate_id, num_candidates):
+        candidate_id = int(candidate_id)
         
         # Selects a random point on the linear equation: y = lambda * x + N
         def point_on_line(lambda_val, n_val):
             x_val = random.randint(-100000000, 100000000)
-            n_val = int(n_val, 2)
+            n_val = int(str(n_val), 2)
 
             return (x_val, lambda_val * x_val + n_val)
 
@@ -35,7 +69,7 @@ class BlindSignatureProtocol():
 
         # Masking the candidate id
         random_binary_string = generate_random_binary_string(256)
-        binary_candidate_id = bin(candidate_id)
+        binary_candidate_id = bin(candidate_id)[2:]
         masked_candidate_id = zero_string + binary_candidate_id + random_binary_string
 
         # Selecting a point,lambda combination 
@@ -51,11 +85,14 @@ class BlindSignatureProtocol():
     # Simple blinding function
     def blind(self, message_to_blind):
         blinding_factor = self.generate_blinding_factor()
-        blinded_message = (message_to_blind * pow(blinding_factor, self.exponent, self.modulus)) % self.modulus
+
+        print("HERE", blinding_factor, message_to_blind)
+
+        blinded_message = (int(message_to_blind, 16) * pow(blinding_factor, self.exponent, self.modulus)) % self.modulus
         return blinded_message
 
     # calculate inverse of 'num' modulo 'm'
-    def mod_inverse(num, m):
+    def mod_inverse(self, num, m):
         original_m = m
         x0, x1 = 0, 1
 
@@ -67,13 +104,12 @@ class BlindSignatureProtocol():
         return x1 + original_m if x1 < 0 else x1
 
     def unblind(self, blinded_message):
-        unblinded_message = (blinded_message * pow(self.mod_inverse(self.blinding_factor, self.modulus), self.exponent, self.modulus)) % self.modulus
+        print("ERIC", blinded_message)
+        unblinded_message = (int.from_bytes(blinded_message) * pow(self.mod_inverse(self.blinding_factor, self.modulus), self.exponent, self.modulus)) % self.modulus
         return unblinded_message
 
     def read_keys_of_CA_and_BN(self):
-        self.pr_key_ca = read_data_from_file("./../resources/private_key_CA")
-        self.pb_key_ca = read_data_from_file("./../resources/public_key_CA")
-        self.pr_key_bn = read_data_from_file("./../resources/private_key_BN")
-        self.pb_key_bn = read_data_from_file("./../resources/public_key_BN")
-
-    
+        self.pr_key_ca = Keys.read_key_from_pem_file("./../resources/keys/private_key_CA", "private")
+        self.pb_key_ca = Keys.read_key_from_pem_file("./../resources/keys/public_key_CA", "public")
+        self.pr_key_bn = Keys.read_key_from_pem_file("./../resources/keys/private_key_BN", "private")
+        self.pb_key_bn = Keys.read_key_from_pem_file("./../resources/keys/public_key_BN", "public")

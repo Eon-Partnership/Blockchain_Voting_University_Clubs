@@ -68,6 +68,19 @@ class Keys():
         
         return key_string
 
+    @staticmethod
+    def read_key_from_pem_file(file_path, file_type):
+        # Open and read the PEM file
+        with open(file_path, "rb") as pem_file:
+            pem_data = pem_file.read()
+
+        if file_type == 'public':
+            key = serialization.load_pem_public_key(pem_data)
+        elif file_type == 'private':
+            key = serialization.load_pem_private_key(pem_data, None)
+        
+        return key
+
 # Generate a key pair
 # private_key, public_key = Keys.generate_key_pair(write_key_to_file=True)
 # print(Keys.read_key_from_file('./private_key_bn', 'private'))
