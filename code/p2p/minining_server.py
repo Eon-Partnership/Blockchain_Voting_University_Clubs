@@ -3,7 +3,7 @@ import websockets
 import json
 
 # This server simulates 1 Miner
-ip_address = "10.12.139.225"
+ip_address = "10.12.143.86"
 port = 8765
 
 async def server(websocket, path):
