@@ -1,13 +1,19 @@
 import asyncio
 import websockets
+import json
+
+# This server simulates 1 Miner
+ip_address = "10.12.139.225"
+port = 8765
 
 async def server(websocket, path):
     async for message in websocket:
         print(f"Received message: {message}")
         # Process message if needed
 
-print("Starting server")
-start_server = websockets.serve(server, "10.12.156.179", 8765)
+# Main
+start_server = websockets.serve(server, ip_address, port)
 
+# This needs to be explored/mpodified
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Voting System</title>
+    <script src="{{ url_for('static', filename='voteScript.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <h1>E-Voting System</h1>
+
+    <form id="voteForm" enctype="multipart/form-data"> 
+        <label for="token">Student ID:</label>
+        <input type="text" id="token" placeholder="Student ID" required>
+
+        <label for="candidate">Select Candidate:</label>
+        <select id="candidate" required>
+            <option value="" disabled selected>Select a candidate</option>
+            <option value="1">Mircat</option>
+            <option value="2">Smaug</option>
+            <option value="3">Smuffie</option>
+            <option value="4">Kirkland</option>
+        </select>
+        <button id="voteButton" type="submit">Vote</button>  
+    </form>
+</body>
+
+</html>
