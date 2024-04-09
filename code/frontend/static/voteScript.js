@@ -26,4 +26,27 @@
             alert("Failed to submit vote. Please try again later.");
         });
     });
+
+    document.getElementById("electionResults").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        fetch('/results', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Results successfully displayed");
+            } else {
+                throw new Error('Result display failed');
+            }
+        })
+        .catch(error => {
+            console.error('Results display error:', error);
+            alert("Failed to display results Please try again later.");
+        });
+    });
 });

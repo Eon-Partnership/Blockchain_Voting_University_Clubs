@@ -15,7 +15,7 @@ class Election():
         magic_number = 1
         version = 1
         previous_block_hash = None
-        bits = 5
+        bits = 4
 
         # Creating the genesis block
         new_block = Block(magic_number, version, previous_block_hash, bits)
@@ -36,7 +36,4 @@ class Election():
 
     def create_final_block(self):
         pass
-
-new_election = Election()
-genesis_block = new_election.create_genesis_block()
-print(genesis_block)
+    

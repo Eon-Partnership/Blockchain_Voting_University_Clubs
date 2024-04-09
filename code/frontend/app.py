@@ -12,8 +12,6 @@ from datetime import datetime
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
 from transaction import VoteTransaction
 
-# transaction = import_module('transaction')
-
 # Number of candidates
 NUM_CANDIDATES = 4
 
@@ -24,7 +22,7 @@ def read_config(filename):
         config = json.load(file)
     return config
 
-async def broadcast_vote_to_miners(message, websocket_uris):
+async def broadcast_message_to_miners(message, websocket_uris):
     for uri in websocket_uris:
         async with websockets.connect(uri) as websocket:
             await websocket.send(message)
@@ -33,6 +31,29 @@ async def broadcast_vote_to_miners(message, websocket_uris):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/results', methods=['POST'])
+def see_results():
+    if request.method != 'POST':
+        return "Failure"
+
+    config = read_config("./../resources/config.json")
+    ip_addresses = config['ip_addresses']
+    ports = config['ports']
+
+    websocket_uris = []
+    for i in range(len(ports)):
+        uri = "ws://" + ip_addresses[i] + ":" + ports[i]
+        websocket_uris.append(uri)
+    
+    message = {
+        "message_type": "election_results"
+    }
+
+    message_string = json.dumps(message)
+    
+    asyncio.run(broadcast_message_to_miners(message_string, websocket_uris))
+    return f"Success!"
 
 @app.route('/vote', methods=['POST'])
 def vote_submitted():
@@ -43,7 +64,7 @@ def vote_submitted():
     token = data.get('token')
     candidate = data.get('candidate')    
     candidate_id = data.get('candidateId')
-    print(token, candidate, candidate_id)
+    print(f"Data received from voting interface: {token=}, {candidate=}, {candidate_id=}")
 
     config = read_config("./../resources/config.json")
     ip_addresses = config['ip_addresses']
@@ -56,7 +77,7 @@ def vote_submitted():
 
     # Perform Blind-signature protocol
     blindSignatureProtocol = BlindSignatureProtocol()
-    t1, t2, t3 = blindSignatureProtocol.perform_alogirthm(token, candidate_id, NUM_CANDIDATES)
+    t1, t2, t3 = blindSignatureProtocol.perform_algorithm(token, candidate_id, NUM_CANDIDATES)
 
     timestamp = int(datetime.now().timestamp())
     # vote_transaction = VoteTransaction(str(t1), str(t2), str(t3), timestamp)
@@ -71,7 +92,7 @@ def vote_submitted():
 
     vote_transaction_string = json.dumps(vote_transaction)
     
-    asyncio.run(broadcast_vote_to_miners(vote_transaction_string, websocket_uris))
+    asyncio.run(broadcast_message_to_miners(vote_transaction_string, websocket_uris))
     return f"Success!"
 
 
