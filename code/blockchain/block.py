@@ -44,7 +44,7 @@ class BlockHeader():
         if self.previous_block_hash == None:
             previous_block_hash_hex = hex(0)[2:]
         else:
-            previous_block_hash_hex = hex(self.previous_block_hash)[2:]
+            previous_block_hash_hex = self.previous_block_hash
 
         # Concattenating values into one input one hex value
         # version || PrevHash || MerkleRoot || Timestamp || Bits || Nonce

@@ -19,36 +19,38 @@ class BlindSignatureProtocol():
         self.modulus = 3233
         self.exponent = 17
     
-    def perform_alogirthm(self, token, candidate_id, num_candidates):
+    def perform_algorithm(self, token, candidate_id, num_candidates):
         point, lambda_num = self.ballot_conformation_algorithm(candidate_id, num_candidates)
 
         # read the keys
         self.read_keys_of_CA_and_BN()
+        
         # encrypt 
-        t1 = encrypt_rsa(hex(point[0]) + hex(point[1]) + compute_sha256_hash(hex(lambda_num)[2:]), self.pb_key_bn)
+        p_x = point[0].to_bytes(length=16, byteorder='big').hex()
+        p_y = point[1].to_bytes(length=16, byteorder='big').hex()
+        t1 = encrypt_rsa(p_x + p_y + compute_sha256_hash(hex(lambda_num)[2:]), self.pb_key_bn)
 
-        print("MYRON", t1)
+        # Blind the message
         blind_message = self.blind(compute_sha256_hash(bytes.hex(t1)))
+        message_bytes = bytes(blind_message)
 
-        print(blind_message)
         # SEND MESSAGE TO 3rd CA
         # message = encrypt_rsa(token, self.pb_key_ca) + blind_message
-        # print(message)
 
         # --------------------------------
         # decrypt the token and verify it
 
         # get the blind message and produce a signature from it
-        signature = generate_signature(bytes(blind_message), self.pr_key_ca)
+        signature = generate_signature(message_bytes, self.pr_key_ca)
         # --------------------------------
 
         # get the t2 value 
         t2 = self.unblind(signature)
         t3 = encrypt_rsa(str(lambda_num), self.pb_key_ca)
 
-        print(f"t1: {t1};\n t2: {t2};\n t3: {t3}")
+        print("Transaction components before conversion: ", t1, t2, t3)
 
-        return str(bytes.hex(t1)), str(hex(t2)), str(bytes.hex(t3))
+        return str(bytes.hex(t1)), str(hex(t2)[2:]), str(bytes.hex(t3))
 
     # Algorithm for masking and randomzing a voter's vote to make a brute force attack harder
     def ballot_conformation_algorithm(self, candidate_id, num_candidates):
@@ -56,7 +58,7 @@ class BlindSignatureProtocol():
         
         # Selects a random point on the linear equation: y = lambda * x + N
         def point_on_line(lambda_val, n_val):
-            x_val = random.randint(-100000000, 100000000)
+            x_val = random.randint(1, 1000)
             n_val = int(str(n_val), 2)
 
             return (x_val, lambda_val * x_val + n_val)
@@ -68,7 +70,7 @@ class BlindSignatureProtocol():
         zero_string = ''.join(['0' for _ in range(num_zeros)])
 
         # Masking the candidate id
-        random_binary_string = generate_random_binary_string(256)
+        random_binary_string = generate_random_binary_string(16)
         binary_candidate_id = bin(candidate_id)[2:]
         masked_candidate_id = zero_string + binary_candidate_id + random_binary_string
 
@@ -85,10 +87,8 @@ class BlindSignatureProtocol():
     # Simple blinding function
     def blind(self, message_to_blind):
         blinding_factor = self.generate_blinding_factor()
-
-        print("HERE", blinding_factor, message_to_blind)
-
         blinded_message = (int(message_to_blind, 16) * pow(blinding_factor, self.exponent, self.modulus)) % self.modulus
+        
         return blinded_message
 
     # calculate inverse of 'num' modulo 'm'
@@ -104,8 +104,8 @@ class BlindSignatureProtocol():
         return x1 + original_m if x1 < 0 else x1
 
     def unblind(self, blinded_message):
-        print("ERIC", blinded_message)
-        unblinded_message = (int.from_bytes(blinded_message) * pow(self.mod_inverse(self.blinding_factor, self.modulus), self.exponent, self.modulus)) % self.modulus
+        unblinded_message = (int.from_bytes(blinded_message, byteorder='little') * pow(self.mod_inverse(self.blinding_factor, self.modulus), self.exponent, self.modulus)) % self.modulus
+        
         return unblinded_message
 
     def read_keys_of_CA_and_BN(self):
