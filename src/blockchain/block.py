@@ -2,8 +2,8 @@ from datetime import datetime
 from hashlib import sha256
 import re
 from merkly.mtree import MerkleTree
-from transaction import Transaction
-from exceptions.transaction_exception import TransactionException
+from .transaction import Transaction
+from .exceptions.transaction_exception import TransactionException
 
 class BlockHeader():
     def __init__(self, version, previous_block_hash, bits) -> None:

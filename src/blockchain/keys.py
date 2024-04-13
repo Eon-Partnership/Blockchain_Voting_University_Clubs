@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-from helper import generate_random_string
-from exceptions.key_exception import KeyException
+from .helper import generate_random_string
+from .exceptions.key_exception import KeyException
 
 class Keys():
     @staticmethod

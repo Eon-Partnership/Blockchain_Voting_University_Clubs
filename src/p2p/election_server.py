@@ -1,12 +1,7 @@
 from datetime import datetime
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
-
-from block import Block
-from keys import Keys
-from transaction import KeyTransaction
+from ..blockchain.block import Block
+from ..blockchain.keys import Keys
+from ..blockchain.transaction import KeyTransaction
 
 # Election class is used to initialize and terminate an election
 class Election():
@@ -22,8 +17,8 @@ class Election():
 
         # Creating the KeyTransactions
         timestamp = int(datetime.now().timestamp())
-        ca_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_CA')
-        bn_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_BN')
+        ca_key = Keys.read_raw_key_from_file('./src/resources/keys/public_key_CA')
+        bn_key = Keys.read_raw_key_from_file('./src/resources/keys/public_key_BN')
         key_transaction = KeyTransaction(ca_key, bn_key, timestamp)
         
         # Adding the transaction to the block

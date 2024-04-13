@@ -1,12 +1,7 @@
 import random
 import math
-import os
-import sys
-from importlib import import_module
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
-from keys import Keys
-from helper import compute_sha256_hash, encrypt_rsa, decrypt_rsa, generate_signature, generate_random_binary_string
+from ..blockchain.keys import Keys
+from ..blockchain.helper import compute_sha256_hash, encrypt_rsa, decrypt_rsa, generate_signature, generate_random_binary_string
 
 class BlindSignatureProtocol():
     def __init__(self) -> None:
