@@ -83,19 +83,4 @@ class KeyTransaction(Transaction):
         second_hash_hex = self.compute_sha256_hash(first_hash_hex)
 
         return second_hash_hex
-
-if __name__ == '__main__':
-    from datetime import datetime
-    from keys import Keys
-
-    # # Testing a KeyTransaction
-    # timestamp = int(datetime.now().timestamp())
-    # ca_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_CA')
-    # # ca_key = str(ca_key.encode('utf-8').hex())
-    # bn_key = Keys.read_raw_key_from_file('./code/resources/keys/public_key_BN')
-    # # bn_key = str(bn_key.encode('utf-8').hex())
-    # key_transaction = KeyTransaction(ca_key, bn_key, timestamp)
-    # print(key_transaction.transaction_hash)
-
-    # Testing a VoteTransaction
     

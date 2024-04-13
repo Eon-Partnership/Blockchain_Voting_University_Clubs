@@ -1,20 +1,16 @@
 import asyncio
 import websockets
 import json
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
-from blockchain import BlockChain
-from election_server import Election
-from transaction import VoteTransaction
-from block import Block
-from helper import decrypt_rsa
-from keys import Keys
+from ..blockchain.blockchain import BlockChain
+from .election_server import Election
+from ..blockchain.transaction import VoteTransaction
+from ..blockchain.block import Block
+from ..blockchain.helper import decrypt_rsa
+from ..blockchain.keys import Keys
 
 # This server simulates 1 Miner
 # ip_address = "10.12.143.86"
-ip_address = "10.12.159.102"
+ip_address = "10.12.159.115"
 port = 8765
 current_block = None
 
@@ -68,8 +64,8 @@ def process_message(json_object):
                         original_t2 = int(transaction.ballot_slope, 16)
                         original_t3 = bytes.fromhex(transaction.ballot_signature)
 
-                        pr_key_ca = Keys.read_key_from_pem_file("./code/resources/keys/private_key_CA", "private")
-                        pr_key_bn = Keys.read_key_from_pem_file("./code/resources/keys/private_key_BN", "private")
+                        pr_key_ca = Keys.read_key_from_pem_file("./src/resources/keys/private_key_CA", "private")
+                        pr_key_bn = Keys.read_key_from_pem_file("./src/resources/keys/private_key_BN", "private")
 
                         raw_t1 = decrypt_rsa(original_t1, pr_key_bn)
                         raw_t3 = decrypt_rsa(original_t3, pr_key_ca)

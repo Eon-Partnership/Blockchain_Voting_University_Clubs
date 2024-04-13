@@ -2,15 +2,8 @@ from flask import Flask, render_template, request
 import json
 import websockets
 import asyncio
-from blind_signature_protocol import BlindSignatureProtocol
-import os
-import sys
-from importlib import import_module
+from .blind_signature_protocol import BlindSignatureProtocol
 from datetime import datetime
-
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../blockchain')))
-from transaction import VoteTransaction
 
 # Number of candidates
 NUM_CANDIDATES = 4
@@ -80,7 +73,6 @@ def vote_submitted():
     t1, t2, t3 = blindSignatureProtocol.perform_algorithm(token, candidate_id, NUM_CANDIDATES)
 
     timestamp = int(datetime.now().timestamp())
-    # vote_transaction = VoteTransaction(str(t1), str(t2), str(t3), timestamp)
 
     vote_transaction = {
         "message_type": "vote_transaction",
