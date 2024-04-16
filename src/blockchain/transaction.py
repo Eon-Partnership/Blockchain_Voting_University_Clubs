@@ -1,5 +1,6 @@
 from hashlib import sha256
 from abc import ABC, abstractmethod
+from enum import Enum
 
 class Transaction(ABC):
     def __init__(self, transaction_type, timestamp) -> None:
@@ -25,6 +26,10 @@ class Transaction(ABC):
 
             return hex_digest
 
+class TransactionType(Enum):
+    KEY = 'key'
+    VOTE = 'vote'
+
 class VoteTransaction(Transaction):
     def __init__(self, ballot_point, ballot_slope, ballot_signature, timestamp):
         # Encrypted candidiate information for a ballot 
@@ -33,7 +38,7 @@ class VoteTransaction(Transaction):
         self.ballot_signature = ballot_signature # Enc(lambda, PK_CA)
 
         # Calling super class constructor
-        super().__init__('vote', timestamp)
+        super().__init__(TransactionType.VOTE, timestamp)
 
         # Initializing the transaction hash
         self.transaction_hash = self.compute_hash()
@@ -58,7 +63,7 @@ class KeyTransaction(Transaction):
         self.blockchain_network_key = blockchain_network_key
 
         # Calling super class constructor
-        super().__init__('key', timestamp)
+        super().__init__(TransactionType.KEY, timestamp)
 
         # Initializing the transaction hash
         self.transaction_hash = self.compute_hash()

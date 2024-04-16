@@ -3,7 +3,7 @@
 ## About The Project
 Eon is a Bitcoin-based blockchain voting system that utilizes the Blind Signature Protocol to ensure unlinkability between a voter and their ballot
 
-[SYSTEM DIAGRAM GOES HERE]
+![System Diagram](./UML/Designs/ComponentDiagram.png)
 
 This system can be used as a starting ground for University Club elections where the Central Authority would be the university and the Blockchain Network is the club hosting the election.
 

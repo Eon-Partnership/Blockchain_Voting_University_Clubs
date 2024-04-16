@@ -80,7 +80,3 @@ class Keys():
             key = serialization.load_pem_private_key(pem_data, None)
         
         return key
-
-# Generate a key pair
-# private_key, public_key = Keys.generate_key_pair(write_key_to_file=True)
-# print(Keys.read_key_from_file('./private_key_bn', 'private'))
